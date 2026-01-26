@@ -97,20 +97,24 @@ def get_clinical_insight(json_data):
     # If all models failed
     return "❌ All Gemini models exceeded quota or unavailable. Please try again later or wait for quota reset."
 
-def main():
+def main(file_path=None):
+    """
+    Main function to run the Clinical Insight Agent.
+    Returns the output file path if successful, None otherwise.
+    """
     # 1. Check if the user provided a file path
-    if len(sys.argv) < 2:
-        print("\n❌ Error: No file path provided.")
-        print("Usage: python clinical_agent.py <path_to_json_file>")
-        print("Example: python clinical_agent.py report.json\n")
-        sys.exit(1)
-
-    file_path = sys.argv[1]
+    if file_path is None:
+        if len(sys.argv) < 2:
+            print("\n❌ Error: No file path provided.")
+            print("Usage: python clinical_agent.py <path_to_json_file>")
+            print("Example: python clinical_agent.py report.json\n")
+            return None
+        file_path = sys.argv[1]
 
     # 2. Check if file exists
     if not os.path.exists(file_path):
         print(f"\n❌ Error: File not found at '{file_path}'")
-        sys.exit(1)
+        return None
 
     # 3. Read and Parse JSON
     print(f"\n📂 Reading file: {file_path}...")
@@ -119,14 +123,18 @@ def main():
             lab_data = json.load(f)
     except json.JSONDecodeError:
         print("❌ Error: The file is not valid JSON.")
-        sys.exit(1)
+        return None
     except Exception as e:
         print(f"❌ Error reading file: {e}")
-        sys.exit(1)
+        return None
 
     # 4. Generate Analysis
     print("🧠 ClinicalInsightAgent is analyzing the data... (Please wait)")
     analysis = get_clinical_insight(lab_data)
+    
+    if not analysis:
+        print("❌ Failed to generate clinical analysis")
+        return None
 
     # 5. Save to file
     # Create output folder if it doesn't exist
@@ -157,6 +165,8 @@ def main():
     print("\n" + "="*50)
     print(f"\n✅ Summary saved to: {output_path}")
     print(f"📁 Output folder: {os.path.abspath(OUTPUT_FOLDER)}\n")
+    
+    return output_path
 
 if __name__ == "__main__":
     main()

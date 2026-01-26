@@ -104,18 +104,22 @@ def get_medical_recommendations(json_data):
     
     return "❌ All Gemini models exceeded quota or unavailable. Please try again later."
 
-def main():
+def main(file_path=None):
+    """
+    Main function to generate medical recommendations.
+    Returns the output file path if successful, None otherwise.
+    """
     # 1. Validate Input
-    if len(sys.argv) < 2:
-        print("\n❌ Error: Please provide the JSON file path.")
-        print("Usage: python recommendation_agent.py <path_to_lab_report.json>\n")
-        sys.exit(1)
-
-    file_path = sys.argv[1]
+    if file_path is None:
+        if len(sys.argv) < 2:
+            print("\n❌ Error: Please provide the JSON file path.")
+            print("Usage: python recommendation_agent.py <path_to_lab_report.json>\n")
+            return None
+        file_path = sys.argv[1]
 
     if not os.path.exists(file_path):
         print(f"\n❌ Error: File not found: {file_path}")
-        sys.exit(1)
+        return None
 
     # 2. Load Data
     print(f"\n📂 Loading report: {file_path}...")
@@ -124,11 +128,15 @@ def main():
             lab_data = json.load(f)
     except Exception as e:
         print(f"❌ Error reading JSON: {e}")
-        sys.exit(1)
+        return None
 
     # 3. Run Analysis
     print("🧠 MedRecAgent is formulating the protocol... (This uses deep reasoning)")
     report = get_medical_recommendations(lab_data)
+    
+    if not report:
+        print("❌ Failed to generate recommendations")
+        return None
 
     # 4. Save & Print
     os.makedirs(OUTPUT_FOLDER, exist_ok=True)
@@ -144,6 +152,8 @@ def main():
     print(report)
     print("="*60)
     print(f"\n✅ Medical Protocol saved to: {output_path}\n")
+    
+    return output_path
 
 if __name__ == "__main__":
     main()

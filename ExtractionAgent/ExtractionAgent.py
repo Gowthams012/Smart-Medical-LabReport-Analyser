@@ -13,13 +13,13 @@ from datetime import datetime
 from typing import Dict, List, Optional, Tuple
 
 # Add paths for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.dirname(__file__))
 
-from pdf_extraction.text_extraction import AdvancedPDFExtractor
-from data_structuring.ConvertrawDataStrutured import CSVToStructuredJSON
+from pdf_extraction import AdvancedPDFExtractor
+from data_structuring import CSVToStructuredJSON
 
 
-class SmartMedicalPipeline:
+class SmartMedicalReportPipeline:
     """
     Complete pipeline for medical report processing
     PDF → CSV → Structured JSON

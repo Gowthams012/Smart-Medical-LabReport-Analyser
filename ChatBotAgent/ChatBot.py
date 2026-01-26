@@ -12,7 +12,7 @@ License: MIT
 import os
 import json
 import sys
-from google import genai
+import google.generativeai as genai
 from datetime import datetime
 
 # --- CONFIGURATION ---
@@ -22,15 +22,16 @@ class Config:
     API_KEY = os.getenv('GEMINI_API_KEY', '')
     
     # Model fallback list (ordered by preference)
+    # Models confirmed working with google.generativeai library
     MODELS = [
         'gemini-2.5-flash',           # Latest, most capable
-        'gemini-flash-latest',        # Stable alias
-        'gemini-2.0-flash-lite',      # Lighter, better quota
-        'gemini-2.5-flash-lite',      # Alternative lite
+        'gemini-flash-latest',        # Alias to latest stable
+        'gemini-2.0-flash-lite',      # Lighter weight, better quota
+        'gemini-2.5-flash-lite',      # Alternative lite version
     ]
     
     # Application settings
-    DEBUG = False
+    DEBUG = True  # Enable to see model switching logs
     MAX_CHAT_HISTORY = 10
 
 class MedicalSafetyLayer:
@@ -68,7 +69,7 @@ class MedicalReasoningEngine:
     
     def __init__(self, api_key):
         """Initialize the reasoning engine with API credentials"""
-        self.client = genai.Client(api_key=api_key)
+        genai.configure(api_key=api_key)
         self.model_name = Config.MODELS[0]
         self.current_model_index = 0
         if Config.DEBUG:
@@ -88,43 +89,57 @@ class MedicalReasoningEngine:
         Raises:
             Exception: If all models fail or non-quota error occurs
         """
+        last_error = None
+        
         for attempt, model in enumerate(Config.MODELS[self.current_model_index:], start=1):
             try:
-                response = self.client.models.generate_content(
-                    model=model,
-                    contents=prompt
-                )
+                print(f"🔄 Attempt {attempt}: Trying model '{model}' for {operation_name}...", file=sys.stderr)
+                model_instance = genai.GenerativeModel(model)
+                response = model_instance.generate_content(prompt)
                 
                 # Success! Update current model if switched
                 if model != self.model_name:
                     self.model_name = model
                     self.current_model_index = Config.MODELS.index(model)
-                    print(f"✅ Switched to model: {self.model_name}")
+                    print(f"✅ Switched to model: {self.model_name}", file=sys.stderr)
+                else:
+                    print(f"✅ Using model: {self.model_name}", file=sys.stderr)
                 
                 return response
                 
             except Exception as e:
                 error_str = str(e)
+                last_error = e
                 
-                # Check if quota error
-                if any(keyword in error_str for keyword in ['429', 'RESOURCE_EXHAUSTED', 'quota']):
-                    print(f"⚠️  Model '{model}' quota exceeded. Trying next model...")
+                # Check if quota/rate limit error
+                is_quota_error = any(keyword in error_str.lower() for keyword in [
+                    '429', 'resource_exhausted', 'quota', 'rate limit', 'too many requests'
+                ])
+                
+                if is_quota_error:
+                    print(f"⚠️  Model '{model}' quota exceeded: {error_str[:100]}...", file=sys.stderr)
                     
-                    # Last model failed
-                    if attempt >= len(Config.MODELS) - self.current_model_index:
+                    # Check if more models available
+                    remaining = len(Config.MODELS) - self.current_model_index - attempt
+                    if remaining > 0:
+                        print(f"🔄 {remaining} backup model(s) available. Retrying...", file=sys.stderr)
+                        continue
+                    else:
+                        # Last model also failed
+                        print(f"❌ All {len(Config.MODELS)} models exhausted quota!", file=sys.stderr)
                         raise Exception(
-                            f"❌ All models exhausted quota. Please:\n"
-                            f"   1. Wait a few minutes for quota reset\n"
-                            f"   2. Check your API usage at: https://ai.dev/rate-limit\n"
-                            f"   3. Consider upgrading your API plan"
+                            f"All models hit rate limits. Tried: {', '.join(Config.MODELS)}\n"
+                            f"Solutions:\n"
+                            f"  1. Wait 1-2 minutes for free tier quota reset\n"
+                            f"  2. Get new API key from: https://aistudio.google.com/apikey\n"
+                            f"  3. Upgrade to paid plan for unlimited quota"
                         )
-                    
-                    continue
                 else:
-                    # Non-quota error - raise immediately
-                    raise e
+                    # Non-quota error - raise immediately with context
+                    print(f"❌ Model '{model}' error (non-quota): {error_str[:200]}", file=sys.stderr)
+                    raise Exception(f"Model {model} failed: {error_str}")
         
-        raise Exception("No models available")
+        raise Exception(f"No models available. Last error: {last_error}")
 
     def identify_relevant_tests(self, user_query: str, all_test_names: list) -> list:
         """

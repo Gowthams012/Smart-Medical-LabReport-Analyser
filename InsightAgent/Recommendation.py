@@ -5,9 +5,11 @@ from datetime import datetime
 import google.generativeai as genai
 
 # --- CONFIGURATION ---
-# Get API Key from Environment Variable
-api_key = "AIzaSyDglDom7L5g14WGjcxuVKZLv--jJggOolE"
-# api_key = "YOUR_API_KEY_HERE"  # Uncomment and paste key if not using env vars
+# Get API Key from environment variable (passed from Node.js or set in .env)
+api_key = os.getenv("GOOGLE_GEMINI_API_KEY")
+if not api_key:
+    print("ERROR: GOOGLE_GEMINI_API_KEY environment variable not set")
+    sys.exit(1)
 
 OUTPUT_FOLDER = "medical_recommendations"
 

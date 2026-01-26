@@ -1,0 +1,60 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+env/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# Environment variables
+.env
+*.env
+
+# Output directories (generated data)
+integrated_output/
+summary_output/
+medical_recommendations/
+data/pdfs/*
+!data/pdfs/.gitkeep
+
+# Uploads (user files)
+Backend/uploads/*
+!Backend/uploads/.gitkeep
+
+# Logs
+*.log
+logs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Test files
+*.test.js
+*.spec.js
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# MongoDB dumps
+dump/

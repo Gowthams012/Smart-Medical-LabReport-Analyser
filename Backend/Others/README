@@ -1,0 +1,189 @@
+# Database Schema Documentation
+
+## MongoDB Database: Smart-Lab-Analyser
+
+### Collections (Singular Names):
+- `user` - User authentication
+- `report` - Medical report data
+- `vault` - Patient file vaults
+- `chatbot` - Chat history (future feature)
+
+---
+
+## 1. User Schema (user collection)
+
+```javascript
+{
+  _id: ObjectId,
+  email: String,           // unique, required
+  username: String,        // required
+  password: String,        // hashed with bcrypt
+  googleId: String,        // optional (for OAuth)
+  createdAt: Date,         // auto-generated (timestamps: true)
+  updatedAt: Date          // auto-generated (timestamps: true)
+}
+```
+
+**Indexes**:
+- `email`: unique index
+
+---
+
+## 2. Report Schema (report collection)
+
+```javascript
+{
+  _id: ObjectId,
+  userID: ObjectId,                      // reference user._id, required
+  patientName: String,                   // optional (auto-detected by VaultAgent)
+  fileName: String,                      // original PDF filename
+  filePath: String,                      // path to uploaded PDF
+  fileSize: Number,                      // file size in bytes
+  reportType: String,                    // e.g., "Blood Test", "Lipid Profile"
+  extractedData: Object,                 // Complete JSON from ExtractionAgent
+  jsonPath: String,                      // Path to extracted JSON file
+  testCount: Number,                     // Number of tests in report
+  summary: String,                       // AI-generated clinical summary (TXT)
+  recommendations: String,               // AI-generated recommendations (Markdown)
+  riskLevel: String,                     // enum: "Normal", "Medium", "High", "Unknown"
+  uploadDate: Date,                      // default: Date.now
+  processedDate: Date,                   // when agents completed processing
+  status: String,                        // enum: "pending", "processing", "completed", "failed"
+  createdAt: Date,                       // auto-generated (timestamps: true)
+  updatedAt: Date                        // auto-generated (timestamps: true)
+}
+```
+
+**Indexes**:
+- `userID`: indexed for fast queries
+- `uploadDate`: indexed for sorting
+
+---
+
+## 3. Vault Schema (vault collection)
+
+```javascript
+{
+  _id: ObjectId,
+  userID: ObjectId,                      // reference user._id, required, unique
+  files: [
+    {
+      _id: ObjectId,                     // auto-generated for each file
+      fileName: String,                  // original filename, required
+      uploadDate: Date,                  // default: Date.now
+      fileType: String,                  // e.g., "pdf", required, lowercase
+      fileSize: Number,                  // in bytes, required
+      fileURL: String,                   // path to file, required
+      status: String,                    // enum: "uploaded", "processed", "failed"
+      reportId: ObjectId,                // reference report._id
+      patientName: String                // patient name from report
+    }
+  ],
+  createdAt: Date,                       // auto-generated (timestamps: true)
+  updatedAt: Date                        // auto-generated (timestamps: true)
+}
+```
+
+**Indexes**:
+- `userID`: unique index (one vault per user)
+
+**Note**: Each user has ONE vault document containing ALL their files in the `files` array.
+
+---
+
+## 4. ChatBot Schema (chatbot collection) - FUTURE FEATURE
+
+```javascript
+{
+  _id: ObjectId,
+  userID: ObjectId,                      // reference user._id
+  chatHistory: [
+    {
+      _id: ObjectId,                     // auto-generated for each message
+      role: String,                      // enum: "user", "assistant"
+      message: String,                   // chat message content
+      timestamp: Date                    // default: Date.now
+    }
+  ],
+  createdAt: Date,                       // auto-generated (timestamps: true)
+  updatedAt: Date                        // auto-generated (timestamps: true)
+}
+```
+
+**Indexes**:
+- `userID`: indexed for fast queries
+
+---
+
+## Relationships
+
+```
+user (1) ──< (n) report
+user (1) ──< (1) vault
+user (1) ──< (n) chatbot
+
+report.userID → user._id
+report._id ← vault.files[].reportId
+
+vault.userID → user._id
+
+chatbot.userID → user._id
+```
+
+---
+
+## Example Queries
+
+### Get all reports for a user:
+```javascript
+db.report.find({ userID: ObjectId("user_id_here") }).sort({ uploadDate: -1 })
+```
+
+### Get user's vault:
+```javascript
+db.vault.findOne({ userID: ObjectId("user_id_here") })
+```
+
+### Get specific report with user info:
+```javascript
+db.report.aggregate([
+  { $match: { _id: ObjectId("report_id_here") } },
+  { $lookup: {
+      from: "user",
+      localField: "userID",
+      foreignField: "_id",
+      as: "user"
+    }
+  }
+])
+```
+
+---
+
+**Last Updated**: January 2025
+**Schema Version**: 2.0
+
+
+
+Vault schema:
+
+{
+  _id: ObjectId,
+  userID: ObjectId,
+  files: [
+    {
+      fileName: String,
+      uploadDate: Date,
+      fileType: String,     // pdf / image
+      fileSize: Number,
+      fileURL: String,
+      status: String        // uploaded | processed | failed
+    }
+  ]
+}
+
+
+User
+ ├── Vault (uploaded reports)
+ ├── Reports (AI summary & recommendation)
+ └── Chatbot Sessions (Q&A)

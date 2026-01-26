@@ -136,8 +136,10 @@ def main(file_path=None):
     print("🧠 MedRecAgent is formulating the protocol... (This uses deep reasoning)")
     report = get_medical_recommendations(lab_data)
     
-    if not report:
+    if not report or report.startswith("❌") or report.startswith("Error"):
         print("❌ Failed to generate recommendations")
+        if report:
+            print(report)
         return None
 
     # 4. Save & Print

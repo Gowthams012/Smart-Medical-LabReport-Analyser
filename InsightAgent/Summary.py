@@ -135,8 +135,10 @@ def main(file_path=None):
     print("🧠 ClinicalInsightAgent is analyzing the data... (Please wait)")
     analysis = get_clinical_insight(lab_data)
     
-    if not analysis:
+    if not analysis or analysis.startswith("❌") or analysis.startswith("Error"):
         print("❌ Failed to generate clinical analysis")
+        if analysis:
+            print(analysis)
         return None
 
     # 5. Save to file

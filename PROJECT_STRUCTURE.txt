@@ -1,0 +1,141 @@
+SMART MEDICAL ANALYSER - PROJECT STRUCTURE
+==========================================
+
+Complete Medical Report Processing System
+Backend API + Python ML Agents + Database
+
+DIRECTORY STRUCTURE
+-------------------
+Smart-Medical-Analyser/
+│
+├── Backend/                         # Node.js REST API Server
+│   ├── server.js                    # Server entry point (PORT 5000)
+│   ├── app.js                       # Express app configuration
+│   ├── package.json                 # Node.js dependencies
+│   │
+│   ├── config/
+│   │   └── .env                     # Environment variables (API keys, DB URL)
+│   │
+│   ├── Database/
+│   │   ├── databaseConnections.js  # MongoDB connection handler
+│   │   └── Models/                  # Mongoose schemas
+│   │       ├── UserModels.js        # User authentication
+│   │       ├── ReportModels.js      # Medical reports
+│   │       ├── VaultModels.js       # Patient vaults
+│   │       └── ChatBotModels.js     # Chat history
+│   │
+│   ├── routes/                      # API endpoints
+│   │   ├── authRoutes.js            # /api/auth/* (register, login)
+│   │   ├── chatbotRoutes.js         # /api/chat/* (chat interface)
+│   │   ├── extractionRoutes.js      # /api/upload/* (report upload)
+│   │   └── vaultRoutes.js           # /api/vault/* (patient vaults)
+│   │
+│   ├── controllers/                 # Business logic handlers
+│   │   ├── authController.js
+│   │   ├── chatbotController.js
+│   │   ├── extractionController.js
+│   │   └── vaultController.js
+│   │
+│   ├── middleware/                  # Request processing
+│   │   ├── auth.js                  # JWT authentication
+│   │   ├── upload.js                # File upload handling
+│   │   └── *.js                     # Other middleware
+│   │
+│   ├── services/
+│   │   └── agentService.js          # Python agents integration layer
+│   │
+│   └── uploads/                     # Temporary file storage
+│
+├── ExtractionAgent/                 # PDF → JSON Pipeline
+│   ├── ExtractionAgent.py           # Main extraction pipeline
+│   ├── pdf_extraction.py            # PDF parsing (PyMuPDF, pdfplumber)
+│   └── data_structuring.py          # CSV to structured JSON
+│
+├── InsightAgent/                    # AI Clinical Analysis
+│   ├── Summary.py                   # Generate medical summary
+│   └── Recommendation.py            # Generate recommendations
+│
+├── ValutAgent/                      # Patient Organization
+│   ├── ValutAgent.py                # Smart patient segregation
+│   └── requirements.txt
+│
+├── ChatBotAgent/                    # Interactive Q&A
+│   ├── ChatBot.py                   # Medical chatbot
+│   └── requirements.txt
+│
+├── main.py                          # CLI workflow (standalone)
+├── README.txt                       # Quick reference
+│
+├── data/pdfs/                       # Input PDF storage
+├── integrated_output/               # Processing outputs
+│   ├── extractions/                 # Extracted JSON files
+│   └── PatientVaults/               # Patient-organized PDFs
+├── summary_output/                  # Generated summaries
+└── medical_recommendations/         # Generated recommendations
+
+API ENDPOINTS
+-------------
+POST   /api/auth/register            - User registration
+POST   /api/auth/login               - User login
+POST   /api/upload                   - Upload & process medical report
+GET    /api/reports/:id              - Get report by ID
+GET    /api/vault/:patientId         - Get patient vault
+POST   /api/chat                     - Chat with medical data
+
+ENVIRONMENT SETUP
+-----------------
+Backend/.env:
+  PORT=5000
+  NODE_ENV=development
+  MONGODB_URL=mongodb://localhost:27017/smart_medical_analyser
+  JWT_SECRET=your_jwt_secret
+  GOOGLE_GEMINI_API_KEY=your_gemini_api_key
+  GEMINI_API_KEY=your_gemini_api_key
+
+USAGE
+-----
+1. Start Backend Server:
+   cd Backend
+   npm install
+   npm run dev
+
+2. CLI Workflow:
+   python main.py "data/pdfs/report.pdf"
+
+3. Individual Agents:
+   python ExtractionAgent/ExtractionAgent.py "report.pdf"
+   python InsightAgent/Summary.py "report.json"
+   python InsightAgent/Recommendation.py "report.json"
+   python ValutAgent/ValutAgent.py "report.pdf"
+
+WORKFLOW
+--------
+1. Upload PDF → /api/upload
+2. ExtractionAgent → Extract data to JSON
+3. InsightAgent → Generate summary + recommendations (parallel)
+4. VaultAgent → Organize by patient
+5. Store in MongoDB
+6. ChatBot → Interactive Q&A with report
+
+TECH STACK
+----------
+Backend:     Node.js, Express.js, MongoDB, Mongoose
+API Auth:    JWT (JSON Web Tokens)
+ML Agents:   Python 3.10+, Google Gemini AI
+PDF Processing: PyMuPDF, pdfplumber, pandas
+AI Models:   Gemini 2.5 Flash
+
+FEATURES
+--------
+✓ RESTful API with JWT authentication
+✓ PDF medical report extraction
+✓ Structured JSON data generation
+✓ AI clinical summaries (Gemini)
+✓ Personalized recommendations
+✓ Smart patient vault organization
+✓ Interactive medical chatbot
+✓ MongoDB data persistence
+✓ Multi-user support
+
+---
+Smart Medical Analyser © 2026

@@ -221,18 +221,43 @@ except Exception as e:
             const code = `
 import sys
 import os
+
+# Change to project root so relative paths work
+os.chdir('${this.projectRoot.replace(/\\/g, '/')}')
+
 sys.path.insert(0, '${this.projectRoot.replace(/\\/g, '/')}/InsightAgent')
 import Summary
 
-output_file = Summary.main('${absoluteJsonPath.replace(/\\/g, '/')}')
-print(output_file if output_file else '')
+try:
+    output_file = Summary.main('${absoluteJsonPath.replace(/\\/g, '/')}')
+    if output_file:
+        # Convert to absolute path
+        if not os.path.isabs(output_file):
+            output_file = os.path.abspath(output_file)
+        print(f"OUTPUT_FILE:{output_file}")
+    else:
+        print("ERROR:Summary generation returned None")
+except Exception as e:
+    import traceback
+    print(f"ERROR:{traceback.format_exc()}")
 `;
 
-            const output = await this._runPythonCode(code, { verbose: false });
-            const outputFilePath = output.trim();
+            const output = await this._runPythonCode(code, { verbose: true });
             
-            if (!outputFilePath || !fsSync.existsSync(outputFilePath)) {
-                throw new Error('Summary file not generated');
+            // Parse output
+            if (output.includes('ERROR:')) {
+                const error = output.split('ERROR:')[1].trim();
+                throw new Error(error);
+            }
+            
+            if (!output.includes('OUTPUT_FILE:')) {
+                throw new Error('No output file path returned from Summary agent');
+            }
+            
+            const outputFilePath = output.split('OUTPUT_FILE:')[1].trim().split('\n')[0];
+            
+            if (!fsSync.existsSync(outputFilePath)) {
+                throw new Error(`Summary file not found at: ${outputFilePath}`);
             }
             
             const summary = await fs.readFile(outputFilePath, 'utf-8');
@@ -359,10 +384,8 @@ except Exception as e:
                 recommendations: recommendationResult.text,
                 recommendationsFile: recommendationResult.filePath,
                 isNewPatient: vaultResult.is_new_patient,
-                totalReports: vaultResult.total_report.data,
+                totalReports: vaultResult.total_reports || 1,
                 metadata: extractionResult.metadata,
-                summary: summary,
-                recommendations: recommendations,
                 status: 'success'
             };
         } catch (error) {

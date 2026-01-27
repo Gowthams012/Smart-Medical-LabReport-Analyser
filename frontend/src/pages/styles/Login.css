@@ -1,0 +1,275 @@
+/* Login.css */
+/* Import Outfit font */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+* {
+  box-sizing: border-box;
+}
+
+/* =========================
+   MAIN CONTAINER
+========================= */
+.login-container {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  background-color: #f8fafc;
+  font-family: "Outfit", sans-serif;
+  overflow: hidden;
+}
+
+/* =========================
+   LEFT BRAND PANEL
+========================= */
+.brand-panel {
+  flex: 0.8;
+  background: #020617;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 4rem;
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.brand-panel::before {
+  content: "";
+  position: absolute;
+  top: -10%;
+  right: -10%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, #dc2626 0%, transparent 70%);
+  opacity: 0.25;
+  border-radius: 50%;
+  filter: blur(40px);
+}
+
+.brand-title {
+  font-size: 3.5rem;
+  font-weight: 700;
+  margin: 0;
+  background: linear-gradient(90deg, #ffffff, #dc2626);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  z-index: 2;
+}
+
+.brand-desc {
+  margin-top: 1rem;
+  font-size: 1.2rem;
+  color: #94a3b8;
+  max-width: 80%;
+  line-height: 1.5;
+  z-index: 2;
+}
+
+/* =========================
+   RIGHT FORM PANEL
+========================= */
+.form-panel {
+  flex: 1.2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 400px;
+  padding: 2rem;
+  background: white;
+}
+
+/* =========================
+   HEADER TEXT
+========================= */
+.header-text h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 0.5rem;
+}
+
+.header-text p {
+  color: #64748b;
+  margin-bottom: 2rem;
+  font-size: 0.95rem;
+}
+
+/* =========================
+   INPUT GROUP (FIXED)
+========================= */
+.input-group {
+  position: relative;
+  margin-bottom: 1.8rem;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 22px 0 6px 0;
+  font-size: 1rem;
+  color: #0f172a;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: "Outfit", sans-serif;
+  font-weight: 500;
+}
+
+/* Label (DEFAULT POSITION) */
+.input-group label {
+  position: absolute;
+  left: 0;
+  top: 18px;
+  color: #94a3b8;
+  pointer-events: none;
+  transition: all 0.25s ease;
+  font-size: 1rem;
+}
+
+/* FLOAT LABEL ON FOCUS OR VALUE */
+.input-group input:focus + label,
+.input-group input.has-value + label,
+.input-group input:not(:placeholder-shown) + label {
+  top: -4px;
+  font-size: 0.8rem;
+  color: #dc2626;
+  font-weight: 600;
+}
+
+/* AUTOFILL FIX (NO BLUE BACKGROUND + FLOAT LABEL) */
+.input-group input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px white inset !important;
+  -webkit-text-fill-color: #0f172a !important;
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+.input-group input:-webkit-autofill + label {
+  top: -4px;
+  font-size: 0.8rem;
+  color: #dc2626;
+  font-weight: 600;
+}
+
+/* =========================
+   BUTTONS
+========================= */
+.btn-primary {
+  width: 100%;
+  padding: 15px;
+  background: #0f172a;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 1rem;
+}
+
+.btn-primary:hover {
+  background: #dc2626;
+  transform: translateY(-2px);
+}
+
+/* =========================
+   DIVIDER
+========================= */
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 2rem 0;
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.divider span {
+  margin: 0 10px;
+}
+
+/* =========================
+   GOOGLE BUTTON
+========================= */
+.btn-google {
+  width: 100%;
+  padding: 14px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #0f172a;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-google:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.btn-google:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* =========================
+   SWITCH TEXT
+========================= */
+.switch-text {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+.switch-link {
+  display: inline;
+  background: none;
+  border: none;
+  padding: 0;
+  margin-left: 5px;
+  font: inherit;
+  color: #dc2626;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.auth-feedback {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.auth-feedback.error {
+  color: #dc2626;
+}
+
+.auth-feedback.success {
+  color: #16a34a;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 768px) {
+  .brand-panel {
+    display: none;
+  }
+}

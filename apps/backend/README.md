@@ -5,7 +5,7 @@ Medical Report Analysis System - RESTful API
 ## 📁 Project Structure
 
 ```
-Backend/
+apps/backend/
 ├── config/
 │   └── .env                 # Environment configuration
 ├── controllers/             # Business logic
@@ -38,6 +38,7 @@ Backend/
 
 ### 1. Install Dependencies
 ```bash
+cd apps/backend
 npm install
 ```
 
@@ -183,7 +184,7 @@ All endpoints return standardized error responses:
 
 Test chatbot integration:
 ```bash
-# From Backend directory
+# From apps/backend
 node test_chatbot_integration.js
 ```
 
@@ -210,8 +211,8 @@ node test_chatbot_integration.js
 
 ### Python Integration Errors
 - Ensure Python 3.10+ installed
-- Install dependencies: `pip install -r requirements.txt`
-- Check ChatBotAgent folder exists
+- Install dependencies: `pip install -r python_agents/ChatBotAgent/requirements.txt`
+- Check `python_agents/ChatBotAgent` folder exists
 
 ### API Key Quota Exceeded
 - Model failover tries 4 different models

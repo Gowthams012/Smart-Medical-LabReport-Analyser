@@ -16,12 +16,14 @@ from pathlib import Path
 from datetime import datetime
 
 # Add module paths
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'ExtractionAgent'))
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'InsightAgent'))
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'ValutAgent'))
+PROJECT_ROOT = Path(__file__).resolve().parent
+AGENT_ROOT = PROJECT_ROOT / "python_agents"
+
+for agent_dir in ("ExtractionAgent", "InsightAgent", "VaultAgent"):
+    sys.path.insert(0, str(AGENT_ROOT / agent_dir))
 
 from ExtractionAgent import SmartMedicalReportPipeline
-from ValutAgent import SmartVaultManager
+from VaultAgent import SmartVaultManager
 
 # Try to import Clinical Insight modules
 try:

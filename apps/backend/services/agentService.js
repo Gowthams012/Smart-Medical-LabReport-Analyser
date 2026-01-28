@@ -14,7 +14,7 @@ const fsSync = require('fs');
 
 class AgentService {
     constructor() {
-        this.projectRoot = path.join(__dirname, '../..');
+        this.projectRoot = path.join(__dirname, '../../..');
         this.pythonCmd = 'python';
     }
 
@@ -84,8 +84,8 @@ import os
 # Change to project root so relative paths work
 os.chdir('${this.projectRoot.replace(/\\/g, '/')}')
 
-sys.path.insert(0, '${this.projectRoot.replace(/\\/g, '/')}/ValutAgent')
-from ValutAgent import SmartVaultManager
+sys.path.insert(0, '${this.projectRoot.replace(/\\/g, '/')}/python_agents/VaultAgent')
+from VaultAgent import SmartVaultManager
 import json
 
 try:
@@ -139,7 +139,7 @@ import os
 # Change to project root so relative paths work
 os.chdir('${this.projectRoot.replace(/\\/g, '/')}')
 
-sys.path.insert(0, '${this.projectRoot.replace(/\\/g, '/')}/ExtractionAgent')
+sys.path.insert(0, '${this.projectRoot.replace(/\\/g, '/')}/python_agents/ExtractionAgent')
 from ExtractionAgent import SmartMedicalReportPipeline
 import json
 
@@ -225,7 +225,7 @@ import os
 # Change to project root so relative paths work
 os.chdir('${this.projectRoot.replace(/\\/g, '/')}')
 
-sys.path.insert(0, '${this.projectRoot.replace(/\\/g, '/')}/InsightAgent')
+sys.path.insert(0, '${this.projectRoot.replace(/\\/g, '/')}/python_agents/InsightAgent')
 import Summary
 
 try:
@@ -296,7 +296,7 @@ import os
 # Change to project root so relative paths work
 os.chdir('${this.projectRoot.replace(/\\/g, '/')}')
 
-sys.path.insert(0, '${this.projectRoot.replace(/\\/g, '/')}/InsightAgent')
+sys.path.insert(0, '${this.projectRoot.replace(/\\/g, '/')}/python_agents/InsightAgent')
 import Recommendation
 
 try:

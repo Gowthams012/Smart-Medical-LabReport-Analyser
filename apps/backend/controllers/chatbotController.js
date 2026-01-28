@@ -10,7 +10,7 @@ const path = require('path');
 
 class ChatBotController {
     constructor() {
-        this.projectRoot = path.join(__dirname, '../..');
+        this.projectRoot = path.join(__dirname, '../../..');
         this.pythonCmd = 'python';
     }
 
@@ -298,7 +298,7 @@ import tempfile
 
 # Change to project root
 os.chdir('${this.projectRoot.replace(/\\/g, '/')}')
-sys.path.insert(0, '${this.projectRoot.replace(/\\/g, '/')}/ChatBotAgent')
+sys.path.insert(0, '${this.projectRoot.replace(/\\/g, '/')}/python_agents/ChatBotAgent')
 
 try:
     from ChatBot import UniversalLabChatbot

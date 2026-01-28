@@ -537,17 +537,17 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  # Process single PDF
-  python ValutAgent.py report1.pdf
+    # Process single PDF
+    python VaultAgent.py report1.pdf
   
-  # Process multiple PDFs
-  python ValutAgent.py report1.pdf report2.pdf report3.pdf
+    # Process multiple PDFs
+    python VaultAgent.py report1.pdf report2.pdf report3.pdf
   
-  # Process with patient hint
-  python ValutAgent.py report1.pdf --hint "John Smith"
+    # Process with patient hint
+    python VaultAgent.py report1.pdf --hint "John Smith"
   
-  # Show vault summary
-  python ValutAgent.py --summary
+    # Show vault summary
+    python VaultAgent.py --summary
         """
     )
     

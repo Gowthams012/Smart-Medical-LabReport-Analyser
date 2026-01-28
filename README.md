@@ -5,48 +5,25 @@
 ```
 Smart-Medical-Analyser/
 │
-├── Backend/                           # Node.js REST API Server
-│   ├── config/
-│   │   └── .env                       # Environment variables
-│   ├── controllers/                   # Business logic layer
-│   │   ├── authController.js          # User authentication
-│   │   ├── chatbotController.js       # Medical chatbot
-│   │   └── extractionController.js    # PDF processing
-│   ├── Database/
-│   │   └── Models/                    # MongoDB schemas
-│   │       ├── UserModels.js
-│   │       ├── ReportModels.js
-│   │       ├── ChatBotModels.js
-│   │       └── VaultModels.js
-│   ├── middleware/                    # Request validators
-│   │   ├── auth.js                    # JWT authentication
-│   │   ├── chatbot.js                 # Chatbot validation
-│   │   ├── extraction.js              # File validation
-│   │   └── upload.js                  # File upload handler
-│   ├── routes/                        # API endpoints
-│   │   ├── authRoutes.js
-│   │   ├── chatbotRoutes.js
-│   │   └── extractionRoutes.js
-│   ├── services/
-│   │   └── agentService.js            # Python integration
-│   ├── uploads/                       # Temporary files
-│   ├── app.js                         # Express configuration
-│   ├── server.js                      # Server entry point
-│   ├── package.json                   # Dependencies
-│   └── README.md                      # Backend documentation
+├── apps/
+│   ├── backend/                       # Node.js REST API server
+│   │   ├── config/.env                # Environment variables
+│   │   ├── controllers/               # Business logic layer
+│   │   ├── Database/Models/           # MongoDB schemas
+│   │   ├── middleware/                # Request validators
+│   │   ├── routes/                    # API endpoints
+│   │   ├── services/agentService.js   # Python integration
+│   │   └── uploads/                   # Temporary files (git-kept)
+│   └── frontend/                      # React + Vite UI
+│       ├── src/                       # Application source
+│       ├── public/                    # Static assets
+│       └── vite.config.js             # Build configuration
 │
-├── ChatBotAgent/                      # Python Medical Chatbot
-│   └── ChatBot.py                     # AI chatbot with model failover
-│
-├── ExtractionAgent/                   # PDF Data Extraction
-│   └── (extraction scripts)
-│
-├── InsightAgent/                      # Medical Analysis
-│   ├── Recommendation.py              # Medical recommendations
-│   ├── Summary.py                     # Report summarization
-│   └── root.py                        # Agent orchestration
-│
-├── ValutAgent/                        # Data vault management
+├── python_agents/                     # All Python AI workers
+│   ├── ChatBotAgent/ChatBot.py        # Medical chatbot with failover
+│   ├── ExtractionAgent/               # PDF → JSON pipeline
+│   ├── InsightAgent/                  # Summary & recommendation agents
+│   └── VaultAgent/VaultAgent.py       # Patient vault segregation
 │
 ├── data/                              # Sample data
 ├── integrated_output/                 # Processed reports
@@ -94,19 +71,29 @@ Smart-Medical-Analyser/
 
 2. **Backend Setup**
    ```bash
-   cd Backend
+   cd apps/backend
    npm install
    cp config/.env.example config/.env
    # Edit .env with your credentials
    npm run dev
    ```
 
-3. **Python Dependencies**
+3. **Frontend Setup**
    ```bash
+   cd apps/frontend
+   npm install
+   npm run dev
+   ```
+
+4. **Python Dependencies**
+   ```bash
+   cd python_agents
+   pip install -r ChatBotAgent/requirements.txt
+   pip install -r VaultAgent/requirements.txt
    pip install google-generativeai
    ```
 
-4. **MongoDB**
+5. **MongoDB**
    ```bash
    mongod --dbpath /path/to/data
    ```
@@ -236,7 +223,7 @@ python test_model_failover.py
 
 ## 📝 Environment Variables
 
-Required in `Backend/config/.env`:
+Required in `apps/backend/config/.env`:
 ```env
 PORT=5000
 MONGODB_URL=mongodb://localhost:27017/smart_medical_analyser
@@ -246,9 +233,9 @@ GEMINI_API_KEY=your_gemini_api_key
 
 ## 📚 Documentation
 
-- **Backend API**: See `Backend/README.md`
-- **ChatBot**: See `ChatBotAgent/ChatBot.py` docstrings
-- **Models**: Check `Backend/Database/Models/`
+- **Backend API**: See `apps/backend/README.md`
+- **ChatBot**: See `python_agents/ChatBotAgent/ChatBot.py` docstrings
+- **Models**: Check `apps/backend/Database/Models/`
 
 ## 🤝 Contributing
 

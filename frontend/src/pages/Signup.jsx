@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGoogleLogin } from "@react-oauth/google";
 import "./styles/Login.css";
@@ -7,9 +7,15 @@ import { fetchGoogleProfile } from "../utils/googleProfile.js";
 
 const Signup = () => {
   const navigate = useNavigate();
-  const { signup, googleLogin, isSubmitting } = useAuth();
+  const { signup, googleLogin, isSubmitting, token } = useAuth();
   const [formData, setFormData] = useState({ username: "", email: "", password: "" });
   const [feedback, setFeedback] = useState(null);
+
+  useEffect(() => {
+    if (token) {
+      navigate("/home", { replace: true });
+    }
+  }, [navigate, token]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -27,7 +33,7 @@ const Signup = () => {
         password: formData.password,
       });
       setFeedback({ type: "success", message: "Account created successfully." });
-      navigate("/login", { replace: true });
+      navigate("/home", { replace: true });
     } catch (error) {
       setFeedback({ type: "error", message: error.message || "Signup failed." });
     }
@@ -46,7 +52,7 @@ const Signup = () => {
           type: "success",
           message: "Signed up with Google successfully.",
         });
-        navigate("/login", { replace: true });
+        navigate("/home", { replace: true });
       } catch (error) {
         setFeedback({
           type: "error",

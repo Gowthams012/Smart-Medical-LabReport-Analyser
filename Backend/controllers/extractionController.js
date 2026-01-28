@@ -49,16 +49,19 @@ exports.uploadReport = async (req, res) => {
 
         // Process through complete pipeline
         const result = await agentService.processComplete(pdfPath);
+        const normalizedExtractedData = normalizeExtractedData(result.extractedData);
+        const storedPdfPath = result.reportPath || pdfPath;
+        const vaultDirectory = result.vaultPath || path.dirname(storedPdfPath);
 
         // Determine risk level from extracted data
-        const riskLevel = determineRiskLevel(result.extractedData);
+        const riskLevel = determineRiskLevel(normalizedExtractedData);
 
         // Create Report in MongoDB
         const report = await Report.create({
             userID: userId,
             patientName: result.patientName,
             reportType: result.extractedData.reportType || 'Blood Test',
-            extractedData: result.extractedData,
+            extractedData: normalizedExtractedData,
             summary: result.summary,
             recommendations: result.recommendations,
             riskLevel: riskLevel
@@ -69,7 +72,8 @@ exports.uploadReport = async (req, res) => {
             fileName: fileName,
             fileType: 'application/pdf',
             fileSize: req.file.size,
-            fileURL: pdfPath,
+            fileURL: storedPdfPath,
+            vaultPath: vaultDirectory,
             reportId: report._id,
             patientName: result.patientName,
             status: 'processed'
@@ -83,7 +87,7 @@ exports.uploadReport = async (req, res) => {
             data: {
                 reportId: report._id,
                 patientName: result.patientName,
-                testCount: result.testCount,
+                testCount: normalizedExtractedData.tests.length || result.testCount,
                 riskLevel: riskLevel,
                 isNewPatient: result.isNewPatient,
                 totalReports: result.totalReports,
@@ -200,27 +204,43 @@ exports.deleteReport = async (req, res) => {
 };
 
 /**
+ * Helper: Normalize extracted data to ensure tests array exists
+ */
+function normalizeExtractedData(extractedData = {}) {
+    const data = typeof extractedData === 'object' && extractedData !== null ? { ...extractedData } : {};
+    const candidateKeys = ['tests', 'test_results', 'testResults', 'lab_tests', 'labTests', 'lab_results'];
+    let tests = [];
+
+    for (const key of candidateKeys) {
+        const value = data[key];
+        if (Array.isArray(value) && value.length) {
+            tests = value;
+            break;
+        }
+    }
+
+    data.tests = tests;
+    return data;
+}
+
+/**
  * Helper: Determine risk level from extracted data
  */
 function determineRiskLevel(extractedData) {
-    // Simple heuristic: check for out-of-range values
+    const normalized = normalizeExtractedData(extractedData);
     let outOfRangeCount = 0;
-    let totalTests = 0;
+    const totalTests = normalized.tests.length;
 
-    if (extractedData.tests && Array.isArray(extractedData.tests)) {
-        totalTests = extractedData.tests.length;
-        
-        extractedData.tests.forEach(test => {
-            if (test.flag || test.status === 'High' || test.status === 'Low') {
-                outOfRangeCount++;
-            }
-        });
-    }
+    normalized.tests.forEach(test => {
+        if (test.flag || test.status === 'High' || test.status === 'Low') {
+            outOfRangeCount++;
+        }
+    });
 
     if (totalTests === 0) return 'Unknown';
-    
+
     const percentage = (outOfRangeCount / totalTests) * 100;
-    
+
     if (percentage > 30) return 'High';
     if (percentage > 15) return 'Medium';
     return 'Normal';
@@ -231,15 +251,20 @@ function determineRiskLevel(extractedData) {
  */
 async function updateUserVault(userId, fileData) {
     try {
+        const normalizedFileData = {
+            ...fileData,
+            vaultPath: fileData.vaultPath || (fileData.fileURL ? path.dirname(fileData.fileURL) : undefined)
+        };
+
         let vault = await Vault.findOne({ userID: userId });
 
         if (!vault) {
             vault = await Vault.create({
                 userID: userId,
-                files: [fileData]
+                files: [normalizedFileData]
             });
         } else {
-            vault.files.push(fileData);
+            vault.files.push(normalizedFileData);
             await vault.save();
         }
 

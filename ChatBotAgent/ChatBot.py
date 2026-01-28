@@ -405,7 +405,13 @@ class UniversalLabChatbot:
         # Retrieve test data
         relevant_data = self._get_test_data(relevant_test_names)
         
-        # Fallback for general queries
+        # Smart fallback for lifestyle/general questions
+        if not relevant_data:
+            fallback_names = self._fallback_tests_for_general_query(user_query)
+            if fallback_names:
+                relevant_data = self._get_test_data(fallback_names)
+
+        # Fallback for summary-style prompts
         if not relevant_data and any(word in user_query.lower() for word in ['summary', 'overall', 'everything', 'all']):
             relevant_data = self.lab_data
         
@@ -420,6 +426,35 @@ class UniversalLabChatbot:
             self.chat_history = self.chat_history[-Config.MAX_CHAT_HISTORY:]
         
         return response
+
+    def _fallback_tests_for_general_query(self, user_query: str) -> list:
+        """Select helpful test names for broad lifestyle/diet questions."""
+        query = user_query.lower()
+        keyword_groups = [
+            ({"diet", "food", "eat", "nutrition", "fruit", "vegetable"}, ["glucose", "chol", "lipid", "trig", "hdl", "ldl"]),
+            ({"energy", "fatigue", "tired", "exercise", "workout", "fitness"}, ["hemoglobin", "rbc", "hematocrit", "iron"]),
+            ({"immunity", "infection", "cold", "fever"}, ["wbc", "neutrophil", "lymph", "platelet"]),
+            ({"heart", "cardio", "bp", "pressure", "stress"}, ["chol", "hdl", "ldl", "trig", "glucose"]),
+        ]
+
+        for keywords, filters in keyword_groups:
+            if any(word in query for word in keywords):
+                matches = self._match_tests_by_keywords(filters)
+                if matches:
+                    return matches
+
+        # Generic fallback: return first few available tests
+        return self.flat_tests[:4]
+
+    def _match_tests_by_keywords(self, filters, limit=4):
+        matches = []
+        for name in self.flat_tests:
+            lower_name = name.lower()
+            if any(f in lower_name for f in filters):
+                matches.append(name)
+            if len(matches) >= limit:
+                break
+        return matches
 
 # --- MAIN EXECUTION ---
 def main():

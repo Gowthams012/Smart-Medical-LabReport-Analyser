@@ -376,6 +376,7 @@ except Exception as e:
             return {
                 patientName: vaultResult.patient_name || extractionResult.patientInfo.name,
                 vaultPath: vaultResult.vault_dir,
+                reportPath: vaultResult.report_path,
                 extractedData: extractionResult.data,
                 jsonPath: extractionResult.jsonPath,
                 testCount: extractionResult.testCount,

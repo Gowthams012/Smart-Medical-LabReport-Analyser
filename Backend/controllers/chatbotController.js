@@ -39,12 +39,19 @@ class ChatBotController {
             });
 
             if (!chatSession) {
-                // Create new chat session
-                chatSession = await ChatBot.create({
+                // Create new chat session with seeded insights
+                chatSession = new ChatBot({
                     userID: userId,
                     relatedReportID: reportId,
                     chatHistory: []
                 });
+
+                const seededMessages = this._buildInitialMessages(report);
+                if (seededMessages.length > 0) {
+                    chatSession.chatHistory = seededMessages;
+                }
+
+                await chatSession.save();
             }
 
             res.status(200).json({
@@ -99,16 +106,21 @@ class ChatBotController {
             }
 
             const report = chatSession.relatedReportID;
+            const normalizedTests = this._extractTests(report.extractedData);
 
-            // Validate report has extractedData
-            if (!report.extractedData || !report.extractedData.tests || report.extractedData.tests.length === 0) {
+            if (normalizedTests.length === 0) {
                 return res.status(400).json({
                     success: false,
                     message: 'Report does not contain valid lab test data. Please process the report first.'
                 });
             }
 
-            console.log(`📊 Report has ${report.extractedData.tests.length} tests`);
+            console.log(`📊 Report has ${normalizedTests.length} tests`);
+
+            const reportDataWithTests = {
+                ...report.extractedData,
+                tests: normalizedTests
+            };
 
             // Add user message to history
             chatSession.chatHistory.push({
@@ -119,7 +131,7 @@ class ChatBotController {
 
             // Call Python chatbot with report data and chat history
             const botResponse = await this._callChatBot(
-                report.extractedData,
+                reportDataWithTests,
                 chatSession.chatHistory,
                 message
             );
@@ -398,6 +410,59 @@ except Exception as e:
             });
         });
     }
+
+        _buildInitialMessages(report) {
+            const insights = [];
+
+            if (report.summary) {
+                insights.push({
+                    role: 'assistant',
+                    message: `Here is the report summary:\n${report.summary}`,
+                    timestamp: new Date()
+                });
+            }
+
+            const recommendations = this._normalizeRecommendations(report.recommendations);
+            if (recommendations.length > 0) {
+                insights.push({
+                    role: 'assistant',
+                    message: `Recommended next steps:\n• ${recommendations.join('\n• ')}`,
+                    timestamp: new Date()
+                });
+            }
+
+            return insights;
+        }
+
+        _normalizeRecommendations(value) {
+            if (!value) return [];
+            if (Array.isArray(value)) {
+                return value.map(item => (typeof item === 'string' ? item.trim() : '')).filter(Boolean);
+            }
+            if (typeof value === 'string') {
+                return value
+                    .split(/\n|•|-/)
+                    .map(item => item.trim())
+                    .filter(Boolean);
+            }
+            return [];
+        }
+
+        _extractTests(extractedData = {}) {
+            if (!extractedData || typeof extractedData !== 'object') {
+                return [];
+            }
+
+            const possibleKeys = ['tests', 'test_results', 'testResults', 'lab_tests', 'labTests', 'lab_results'];
+
+            for (const key of possibleKeys) {
+                const value = extractedData[key];
+                if (Array.isArray(value) && value.length) {
+                    return value;
+                }
+            }
+            return [];
+        }
 }
 
 module.exports = new ChatBotController();

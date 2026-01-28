@@ -24,6 +24,10 @@ const fileSchema = new mongoose.Schema({
         required: [true, 'File URL is required'],
         trim: true
     },
+    vaultPath: {
+        type: String,
+        trim: true
+    },
     status: {
         type: String,
         enum: ['uploaded', 'processed', 'failed'],

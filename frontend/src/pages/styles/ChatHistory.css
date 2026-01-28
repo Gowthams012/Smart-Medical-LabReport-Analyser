@@ -1,0 +1,369 @@
+/* ChatHistory.css */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+/* --- GLOBAL RESET --- */
+* {
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --- PAGE CONTAINER (Scrollable) --- */
+.chat-history-page {
+  /* Locks the viewport but allows internal scrolling */
+  height: 100vh;
+  width: 100vw;
+  overflow-y: auto; 
+  overflow-x: hidden;
+  
+  /* Clinical Gradient Background */
+  background: radial-gradient(circle at top left, #ffffff, #f1f5f9 60%, #e2e8f0 100%);
+  display: flex;
+  flex-direction: column;
+  font-family: 'Outfit', sans-serif;
+  color: #0f172a;
+  position: relative;
+}
+
+/* Scrollbar Styling */
+.chat-history-page::-webkit-scrollbar { width: 8px; }
+.chat-history-page::-webkit-scrollbar-track { background: transparent; }
+.chat-history-page::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+.chat-history-page::-webkit-scrollbar-thumb:hover { background-color: #94a3b8; }
+
+/* --- NAVBAR (Sticky Glassmorphism) --- */
+.navbar {
+  flex-shrink: 0;
+  height: 64px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 2rem;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+  
+  /* Sticks to top while scrolling */
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  transition: all 0.3s ease;
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.logo-icon {
+  width: 32px;
+  height: 32px;
+  background: #dc2626;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 1rem;
+  box-shadow: 0 4px 10px rgba(220, 38, 38, 0.2);
+}
+
+.brand-text {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+.brand-text span { color: #dc2626; }
+
+.nav-links {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-item {
+  color: #64748b;
+  font-weight: 500;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: color 0.2s;
+  position: relative;
+}
+
+.nav-item:hover { color: #0f172a; }
+
+/* Active State for Nav Items */
+.nav-item.active {
+  color: #dc2626;
+  font-weight: 600;
+}
+.nav-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: -21px; /* Aligns with navbar bottom */
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: #dc2626;
+  border-radius: 4px 4px 0 0;
+}
+
+.profile-pill {
+  width: 38px;
+  height: 38px;
+  background: #0f172a;
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.85rem;
+  border: 2px solid #e2e8f0;
+}
+
+/* --- MAIN CONTENT WRAPPER --- */
+.chat-history-container {
+  flex: 1;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 3rem 2rem;
+}
+
+/* --- HEADER SECTION --- */
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 2.5rem;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.history-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.5rem;
+}
+
+.history-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0;
+  color: #0f172a;
+  line-height: 1.1;
+}
+
+.history-subtext {
+  margin-top: 0.75rem;
+  color: #64748b;
+  font-size: 1.1rem;
+  max-width: 600px;
+}
+
+.pill-button {
+  background: #dc2626;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.75rem;
+  border-radius: 100px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2);
+}
+
+.pill-button:hover {
+  background: #b91c1c;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(220, 38, 38, 0.3);
+}
+
+/* --- HISTORY GRID (Responsive Masonry) --- */
+.history-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1.5rem;
+}
+
+/* --- CARD COMPONENT --- */
+.history-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  height: 100%; /* Ensures uniform height in grid */
+}
+
+/* Card Hover Interaction */
+.history-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.06);
+  border-color: #cbd5e1;
+}
+
+/* Red Decorative Accent on Hover */
+.history-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: #dc2626;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.history-card:hover::before { opacity: 1; }
+
+.history-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+  gap: 1rem;
+}
+
+.history-card-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #0f172a;
+  font-weight: 600;
+  /* Truncate long names */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.status-badge {
+  font-size: 0.7rem;
+  padding: 4px 10px;
+  border-radius: 99px;
+  font-weight: 600;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+
+.status-badge.completed { background: #eff6ff; color: #2563eb; }
+.status-badge.pending { background: #f1f5f9; color: #64748b; }
+
+.history-meta {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  margin-bottom: 1.25rem;
+  font-weight: 500;
+}
+
+.history-snippet {
+  font-size: 0.9rem;
+  color: #334155;
+  line-height: 1.6;
+  background: #f8fafc;
+  padding: 1rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  flex-grow: 1; /* Pushes button to bottom */
+  
+  /* Clean multiline truncation */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.history-actions {
+  margin-top: auto;
+}
+
+.outline-btn {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #e2e8f0;
+  background: transparent;
+  border-radius: 12px;
+  color: #0f172a;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.outline-btn:hover {
+  background: #0f172a;
+  color: white;
+  border-color: #0f172a;
+}
+
+/* --- STATES --- */
+.history-loading, .history-error, .history-empty {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 24px;
+  border: 1px dashed #e2e8f0;
+  color: #64748b;
+  margin-top: 2rem;
+}
+
+.history-error {
+  color: #b91c1c;
+  background: #fef2f2;
+  border-style: solid;
+  border-color: #fee2e2;
+}
+
+.history-empty p {
+  font-size: 1.2rem;
+  margin-bottom: 1.5rem;
+}
+
+.history-empty button {
+  background: #0f172a;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.history-empty button:hover { background: #dc2626; }
+
+/* --- RESPONSIVE DESIGN --- */
+@media (max-width: 768px) {
+  .navbar { padding: 0 1rem; }
+  .nav-links { display: none; } /* Hide Desktop Nav */
+  
+  .chat-history-container { padding: 2rem 1rem; }
+  
+  .history-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .pill-button { width: 100%; text-align: center; }
+  
+  .history-grid {
+    grid-template-columns: 1fr; /* Single column on mobile */
+  }
+}

@@ -21,7 +21,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/extraction", require("./routes/extractionRoutes"));
 app.use("/api/chat", require("./routes/chatbotRoutes"));
-// app.use("/api/vault", require("./routes/vaultRoutes")); // TODO: Implement vault routes
+app.use("/api/vault", require("./routes/vaultRoutes"));
 
 // Health check route
 app.get("/", (req, res) => {

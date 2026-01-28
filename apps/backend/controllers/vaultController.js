@@ -152,3 +152,55 @@ exports.downloadVaultFile = async (req, res) => {
         });
     }
 };
+
+exports.deleteVaultFile = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { fileId } = req.params;
+        const vault = await Vault.findOne({ userID: userId });
+
+        if (!vault) {
+            return res.status(404).json({
+                success: false,
+                message: 'Vault not found'
+            });
+        }
+
+        const fileEntry = vault.files.id(fileId);
+        if (!fileEntry) {
+            return res.status(404).json({
+                success: false,
+                message: 'File not found'
+            });
+        }
+
+        const absolutePath = resolveAbsolutePath(fileEntry.fileURL || fileEntry.vaultPath);
+        if (absolutePath && fs.existsSync(absolutePath)) {
+            try {
+                fs.unlinkSync(absolutePath);
+            } catch (unlinkError) {
+                console.warn('Warning: Unable to remove vault file from disk:', unlinkError.message);
+            }
+        }
+
+        if (typeof fileEntry.deleteOne === 'function') {
+            await fileEntry.deleteOne();
+        } else {
+            vault.files.pull({ _id: fileId });
+        }
+        await vault.save();
+
+        res.json({
+            success: true,
+            message: 'File deleted successfully',
+            data: { fileId }
+        });
+    } catch (error) {
+        console.error('Error deleting vault file:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Unable to delete file',
+            error: error.message
+        });
+    }
+};

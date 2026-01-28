@@ -6,3 +6,5 @@ export const downloadVaultFile = (fileId) =>
   apiClient.get(`/vault/files/${fileId}/download`, {
     responseType: "blob",
   });
+
+export const deleteVaultFile = (fileId) => apiClient.delete(`/vault/files/${fileId}`);

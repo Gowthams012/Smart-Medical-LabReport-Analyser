@@ -281,6 +281,22 @@
 }
 .vault-file-actions button:hover { background: #0f172a; color: white; }
 
+.vault-delete-btn {
+  border-color: #dc2626;
+  color: #dc2626;
+}
+
+.vault-delete-btn:hover,
+.vault-delete-btn:disabled {
+  background: #dc2626;
+  color: white;
+}
+
+.vault-delete-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
 .vault-expand {
   width: 100%;
   background: white;

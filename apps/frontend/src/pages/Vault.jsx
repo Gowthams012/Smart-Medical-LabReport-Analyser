@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
-import { fetchVaultOverview, downloadVaultFile } from "../services/vaultService";
+import { fetchVaultOverview, downloadVaultFile, deleteVaultFile } from "../services/vaultService";
 import "./styles/Vault.css";
 
 const formatBytes = (value = 0) => {
@@ -31,6 +31,7 @@ const Vault = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [expandedGroup, setExpandedGroup] = useState(null);
+  const [deletingFileId, setDeletingFileId] = useState(null);
 
   const initials = useMemo(
     () =>
@@ -88,6 +89,20 @@ const Vault = () => {
     }
   };
 
+  const handleDelete = async (file) => {
+    setError(null);
+    setDeletingFileId(file.id);
+    try {
+      await deleteVaultFile(file.id);
+      await loadVault();
+    } catch (err) {
+      const message = err.response?.data?.message || "Unable to delete file";
+      setError(message);
+    } finally {
+      setDeletingFileId(null);
+    }
+  };
+
   const toggleGroup = (key) => {
     setExpandedGroup((prev) => (prev === key ? null : key));
   };
@@ -112,6 +127,14 @@ const Vault = () => {
                 <span className={`status-pill status-${file.status}`}>{file.status}</span>
                 <button type="button" onClick={() => handleDownload(file)}>
                   Download
+                </button>
+                <button
+                  type="button"
+                  className="vault-delete-btn"
+                  onClick={() => handleDelete(file)}
+                  disabled={deletingFileId === file.id}
+                >
+                  {deletingFileId === file.id ? "Deleting..." : "Delete"}
                 </button>
               </div>
             </div>

@@ -3,7 +3,9 @@ require('dotenv').config({ path: '../config/.env' });
 
 const connectDB = async () => {
     try {
-        const conn = await mongoose.connect(process.env.MONGODB_URL);
+        const conn = await mongoose.connect(process.env.MONGODB_URL, {
+            dbName: process.env.MONGODB_DB || 'smart_medical_analyser'
+        });
 
         console.log(`MongoDB Connected: ${conn.connection.host}`);
         console.log(`Database Name: ${conn.connection.name}`);
